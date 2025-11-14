@@ -153,16 +153,20 @@ const placeOrderStripe = async(req, res) => {
             },
             quantity : item.quantity
         }));
-        line_items.push({
-            price_data : {
-                currency : currency,
-                product_data : {
-                    name : "Delivery Charges"
+        // Apply free delivery for orders above 1000 RS
+        const finalDeliveryCharge = subtotal > 1000 ? 0 : deliveryCharge;
+        if (finalDeliveryCharge > 0) {
+            line_items.push({
+                price_data : {
+                    currency : currency,
+                    product_data : {
+                        name : "Delivery Charges"
+                    },
+                    unit_amount : finalDeliveryCharge*100
                 },
-                unit_amount : deliveryCharge*100
-            },
-            quantity : 1
-        });
+                quantity : 1
+            });
+        }
         const session = await stripe.checkout.sessions.create({
             success_url : `${origin}/verify?session=true&orderId=${newOrder._id}`,
             cancel_url : `${origin}/verify?session=false&orderId=${newOrder._id}`,

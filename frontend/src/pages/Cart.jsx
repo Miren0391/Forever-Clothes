@@ -35,46 +35,64 @@ const Cart = () => {
       <div className='text-xl sm:text-2xl mb-3'>
         <Title text1={'YOUR'} text2={'CART'}/>
       </div>
-      <div className='space-y-4'>
-        {
-          cartData.map((item,index)=>{
-            const productData = products.find((product) => product._id === item._id);
-            return(
-              <div key={index} className='py-3 sm:py-4 border-t border-b text-gray-700 grid grid-cols-[3fr_1fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-2 sm:gap-4'>
 
-                <div className='flex items-start gap-2 sm:gap-5'>
-                  <img className='w-14 sm:w-20 rounded-lg' src={productData.image[0]} alt="" />
-                  <div>
-                    <p className='text-xs sm:text-lg font-medium line-clamp-2 sm:line-clamp-1'>{productData.name}</p>
-                    <div className='flex items-center flex-wrap gap-2 sm:gap-5 mt-1 sm:mt-2'>
-                      <p className='text-base sm:text-lg'>{currency}{productData.price}</p>
-                      <p className='text-sm px-2 sm:px-3 py-0.5 sm:py-1 border bg-slate-50'>{item.size}</p>
+      {/* Empty Cart Message */}
+      {cartData.length === 0 ? (
+        <div className='flex flex-col items-center justify-center py-16 sm:py-20'>
+          <img className='w-20 h-20 sm:w-24 sm:h-24 mb-4 opacity-50' src={assets.bin_icon} alt="Empty cart" />
+          <h2 className='text-xl sm:text-2xl font-semibold text-gray-800 mb-2'>Your Cart is Empty</h2>
+          <p className='text-gray-600 mb-6 text-center max-w-md'>Looks like you haven't added any items yet. Start shopping to fill your cart!</p>
+          <button 
+            onClick={() => navigate('/collection')}
+            className='bg-black text-white px-6 sm:px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors active:bg-gray-900'
+          >
+            CONTINUE SHOPPING
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className='space-y-4'>
+            {
+              cartData.map((item,index)=>{
+                const productData = products.find((product) => product._id === item._id);
+                return(
+                  <div key={index} className='py-3 sm:py-4 border-t border-b text-gray-700 grid grid-cols-[3fr_1fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-2 sm:gap-4'>
+
+                    <div className='flex items-start gap-2 sm:gap-5'>
+                      <img className='w-14 sm:w-20 rounded-lg' src={productData.image[0]} alt="" />
+                      <div>
+                        <p className='text-xs sm:text-lg font-medium line-clamp-2 sm:line-clamp-1'>{productData.name}</p>
+                        <div className='flex items-center flex-wrap gap-2 sm:gap-5 mt-1 sm:mt-2'>
+                          <p className='text-base sm:text-lg'>{currency}{productData.price}</p>
+                          <p className='text-sm px-2 sm:px-3 py-0.5 sm:py-1 border bg-slate-50'>{item.size}</p>
+                        </div>
+                      </div>
                     </div>
+
+                    <input 
+                      onChange={(e)=>e.target.value===' ' || e.target.value==='0'? null:updateQuantity(item._id,item.size,Number(e.target.value))} 
+                      className='border w-12 sm:w-20 px-1 sm:px-2 py-1 text-sm sm:text-base' 
+                      type="number" 
+                      min={1} 
+                      defaultValue={item.quantity}
+                    />
+
+                    <img 
+                      onClick={() => {
+                        setItemToRemove({ id: item._id, size: item.size, name: productData.name });
+                        setShowRemoveDialog(true);
+                      }} 
+                      className='w-4 mr-4 sm:w-5 cursor-pointer' 
+                      src={assets.bin_icon} 
+                      alt="Remove item" 
+                    />
                   </div>
-                </div>
-
-                <input 
-                  onChange={(e)=>e.target.value===' ' || e.target.value==='0'? null:updateQuantity(item._id,item.size,Number(e.target.value))} 
-                  className='border w-12 sm:w-20 px-1 sm:px-2 py-1 text-sm sm:text-base' 
-                  type="number" 
-                  min={1} 
-                  defaultValue={item.quantity}
-                />
-
-                <img 
-                  onClick={() => {
-                    setItemToRemove({ id: item._id, size: item.size, name: productData.name });
-                    setShowRemoveDialog(true);
-                  }} 
-                  className='w-4 mr-4 sm:w-5 cursor-pointer' 
-                  src={assets.bin_icon} 
-                  alt="Remove item" 
-                />
-              </div>
-            )
-          })
-        }
-      </div>
+                )
+              })
+            }
+          </div>
+        </>
+      )}
 
       {/* Confirmation Dialog */}
       <ConfirmationDialog
@@ -93,19 +111,21 @@ const Cart = () => {
         cancelText="Cancel"
       />
 
-      <div className='flex justify-end my-8 sm:my-20'>
-        <div className='w-full sm:w-[450px]'>
-          <CartTotal />
-          <div className='w-full'>
-            <button 
-              onClick={()=>navigate('/place-order')} 
-              className='w-full sm:w-auto float-right bg-black text-white text-sm my-4 sm:my-8 px-4 sm:px-8 py-3 active:bg-gray-800 rounded-lg hover:bg-gray-800 transition-colors'
-            >
-              PROCEED TO CHECKOUT
-            </button>
+      {cartData.length > 0 && (
+        <div className='flex justify-end my-8 sm:my-20'>
+          <div className='w-full sm:w-[450px]'>
+            <CartTotal />
+            <div className='w-full'>
+              <button 
+                onClick={()=>navigate('/place-order')} 
+                className='w-full sm:w-auto float-right bg-black text-white text-sm my-4 sm:my-8 px-4 sm:px-8 py-3 active:bg-gray-800 rounded-lg hover:bg-gray-800 transition-colors'
+              >
+                PROCEED TO CHECKOUT
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

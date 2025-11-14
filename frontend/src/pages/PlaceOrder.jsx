@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import Title from '../components/Title'
 import CartTotal from '../components/CartTotal'
 import { assets } from '../assets/assets'
@@ -13,6 +13,7 @@ const PlaceOrder = () => {
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const {navigate,backendUrl,token,cartItems,setCartItems,getCartAmount,getFinalAmount,delivery_fee,products,appliedCoupon} = useContext(ShopContext);
   const { getProductData } = useContext(ShopContext);
+  const orderPlacedRef = useRef(false);
   const [formdata,setFormData] = useState({
     firstName:'',
     lastName:'',
@@ -24,6 +25,29 @@ const PlaceOrder = () => {
     country:'',
     phone:''
   });
+
+  // Check if cart is empty and redirect (skip if order was just placed)
+  useEffect(() => {
+    if (orderPlacedRef.current) {
+      return; // Skip cart empty check if order was just placed
+    }
+    if (products.length > 0) {
+      let hasItems = false;
+      for (const items in cartItems) {
+        for (const item in cartItems[items]) {
+          if (cartItems[items][item] > 0) {
+            hasItems = true;
+            break;
+          }
+        }
+        if (hasItems) break;
+      }
+      if (!hasItems) {
+        toast.error('Your cart is empty');
+        navigate('/cart');
+      }
+    }
+  }, [products, cartItems, navigate]);
 
   // Fetch user profile and address
   useEffect(() => {
@@ -139,6 +163,8 @@ const PlaceOrder = () => {
           if(response.data.success){
             // Refresh product data so stock is reflected on frontend/admin
             try{ await getProductData(); }catch(e){}
+            // Mark that order was placed to prevent cart empty message
+            orderPlacedRef.current = true;
             // Show success message, clear cart and navigate to orders
             toast.success('Order placed successfully');
             setCartItems({});
@@ -262,10 +288,10 @@ const PlaceOrder = () => {
               <img className='h-5 mx-4' src={assets.stripe_logo} alt="" />
             </div>
             {/* Razorpay */}
-            <div onClick={()=>setMethod('razorpay')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
+            {/* <div onClick={()=>setMethod('razorpay')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method==='razorpay'? 'bg-green-400':''}`}></p>
               <img className='h-5 mx-4' src={assets.razorpay_logo} alt="" />
-            </div>
+            </div> */}
             {/* Cash on delivery */}
             <div onClick={()=>setMethod('cod')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method==='cod'? 'bg-green-400':''}`}></p>

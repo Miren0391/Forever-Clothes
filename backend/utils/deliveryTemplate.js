@@ -19,7 +19,7 @@ export function buildDeliveryHtml({ order, user }) {
   
     const subtotal = Number(order.subtotal || 0);
     const discount = Number(order.discount || 0);
-  const deliveryFee = 50; // Fixed delivery fee
+  const deliveryFee = subtotal > 1000 ? 0 : 50; // Free delivery for orders above 1000 RS
     const total = Number(order.amount || 0);
     const deliveryDate = new Date().toLocaleDateString('en-IN', {
       year: 'numeric',
