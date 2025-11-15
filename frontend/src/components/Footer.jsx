@@ -73,7 +73,7 @@ const Footer = () => {
               </li>
               <li>
                 <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  Returns & Exchanges
+                  {/* Returns & Exchanges */}
                 </a>
               </li>
               <li>

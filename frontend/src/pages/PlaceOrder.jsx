@@ -131,6 +131,18 @@ const PlaceOrder = () => {
   const onSubmitHandler = async(event)=>{
     event.preventDefault();
     try{
+      // Validate zipcode (exactly 6 digits)
+      if (!/^\d{6}$/.test(String(formdata.zipcode || ''))) {
+        toast.error('Zipcode must be exactly 6 digits');
+        return;
+      }
+      
+      // Validate phone (exactly 10 digits)
+      if (!/^\d{10}$/.test(String(formdata.phone || ''))) {
+        toast.error('Phone must be exactly 10 digits');
+        return;
+      }
+      
       let orderItems = [];
       for(const items in cartItems){
         for(const item in cartItems[items]){
@@ -263,10 +275,10 @@ const PlaceOrder = () => {
               <input onChange={onChangeHandler} name='state' value={formdata.state} className='border border-gray-300 rounded py-1.5 px-3.5 w-full' placeholder='State' type="text" required/>
             </div>
             <div className='flex gap-3'>
-              <input onChange={onChangeHandler} name='zipcode' value={formdata.zipcode} className='border border-gray-300 rounded py-1.5 px-3.5 w-full' placeholder='Zipcode' type="number" required/>
+              <input onChange={onChangeHandler} name='zipcode' value={formdata.zipcode} className='border border-gray-300 rounded py-1.5 px-3.5 w-full' placeholder='Zipcode (6 digits)' type="text" pattern="[0-9]{6}" maxLength="6" required/>
               <input onChange={onChangeHandler} name='country' value={formdata.country} className='border border-gray-300 rounded py-1.5 px-3.5 w-full' placeholder='Country' type="text" required/>
             </div>
-            <input onChange={onChangeHandler} name='phone' value={formdata.phone} className='border border-gray-300 rounded py-1.5 px-3.5 w-full' placeholder='Phone' type="number" required/>
+            <input onChange={onChangeHandler} name='phone' value={formdata.phone} className='border border-gray-300 rounded py-1.5 px-3.5 w-full' placeholder='Phone (10 digits)' type="text" pattern="[0-9]{10}" maxLength="10" required/>
           </div>
         )}
       </div>
