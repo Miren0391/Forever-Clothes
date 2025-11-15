@@ -74,6 +74,7 @@ const Cart = () => {
                       className='border w-12 sm:w-20 px-1 sm:px-2 py-1 text-sm sm:text-base' 
                       type="number" 
                       min={1} 
+                      max={productData?.quantity || 1}
                       defaultValue={item.quantity}
                     />
 

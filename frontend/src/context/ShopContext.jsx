@@ -25,6 +25,25 @@ const ShopContextProvider = (props) => {
             return;
         }
 
+        // Get available stock for this product
+        const product = products.find(p => p._id === itemId);
+        if (!product) {
+            toast.error('Product not found');
+            return;
+        }
+
+        const availableStock = product.quantity || 0;
+        
+        // Calculate current quantity in cart for this product and size
+        const currentQuantityInCart = cartItems[itemId]?.[size] || 0;
+        const totalQuantity = currentQuantityInCart + quantity;
+
+        // Check if total quantity would exceed available stock
+        if (totalQuantity > availableStock) {
+            toast.error(`Cannot add more items. Only ${availableStock} items available (${currentQuantityInCart} already in cart)`);
+            return;
+        }
+
         let cartData = structuredClone(cartItems);
         if(cartData[itemId]){
             if(cartData[itemId][size]){
@@ -88,6 +107,16 @@ const ShopContextProvider = (props) => {
                 toast.success(`${name} removed from cart`);
             }catch(e){}
         } else {
+            // Check stock availability before updating quantity
+            const product = products.find(p => p._id === itemId);
+            const availableStock = product?.quantity || 0;
+
+            // If new quantity exceeds available stock, show error and don't update
+            if (quantity > availableStock) {
+                toast.error(`Cannot update quantity. Only ${availableStock} items available`);
+                return;
+            }
+
             // update quantity normally
             cartData[itemId] = cartData[itemId] || {};
             cartData[itemId][size] = quantity;
